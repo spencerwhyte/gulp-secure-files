@@ -29,7 +29,7 @@ function decryptData(encryptedData, encodedAesKey) {
 
 exports.decrypt = function(encodedAesKey) {
   if (typeof encodedAesKey == 'undefined' || encodedAesKey == null) {
-    var err = new PluginError({
+    const err = new PluginError({
       plugin: 'gulp-secure-files',
       message: 'AES key passed to decrypt(..) must be non-null'
     });
@@ -51,10 +51,13 @@ exports.decrypt = function(encodedAesKey) {
 };
 
 exports.encrypt = function(encodedAesKey) {
-  var err = new PluginError({
-    plugin: 'gulp-secure-files',
-    message: 'AES key passed to encrypt(..) must be non-null'
-  });
+  if (typeof encodedAesKey == 'undefined' || encodedAesKey == null) {
+    const err = new PluginError({
+      plugin: 'gulp-secure-files',
+      message: 'AES key passed to encrypt(..) must be non-null'
+    });
+    throw err;
+  }
   return map(function(file, cb) {
     log('Encrypting: ' + file.path);
     const jsonFileContents = file.contents.toString(characterEncoding);
