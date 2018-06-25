@@ -53,7 +53,7 @@ exports.decrypt = function(encodedAesKey) {
 exports.encrypt = function(encodedAesKey) {
   var err = new PluginError({
     plugin: 'gulp-secure-files',
-    message: 'AES key passes to encrypt(..) must be non-null'
+    message: 'AES key passed to encrypt(..) must be non-null'
   });
   return map(function(file, cb) {
     log('Encrypting: ' + file.path);
