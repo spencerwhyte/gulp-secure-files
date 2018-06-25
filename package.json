@@ -1,6 +1,6 @@
 {
   "name": "gulp-secure-files",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Gulp plugin to encrypt and decrypt streams of files using AES",
   "main": "gulp-secure-files.js",
   "scripts": {
