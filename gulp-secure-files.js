@@ -5,7 +5,7 @@ const log = require('fancy-log');
 
 const encryptionAlgorithm = 'aes-256-cbc';
 const encodingScheme = 'base64';
-const characterEncoding = 'utf8'
+const characterEncoding = 'utf8';
 
 function encryptData(plainText, encodedAesKey) {
   const iv = crypto.randomBytes(16);
@@ -30,7 +30,7 @@ function decryptData(encryptedData, encodedAesKey) {
 function processConfigFile(file, exclude, encodedAesKey, process) {
   const jsonFileContents = file.contents.toString(characterEncoding);
   const jsonRepresentation = JSON.parse(jsonFileContents);
-  let excludeKeys = exclude[file.basename] || {};
+  let excludeKeys = exclude[file.relative] || {};
   for (var jsonKey in jsonRepresentation) {
     if (excludeKeys[jsonKey] !== true) {
       const jsonValue = jsonRepresentation[jsonKey];
