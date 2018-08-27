@@ -27,7 +27,22 @@ function decryptData(encryptedData, encodedAesKey) {
   return plainText;
 }
 
-exports.decrypt = function(encodedAesKey) {
+function processConfigFile(file, exclude, process) {
+  const jsonFileContents = file.contents.toString(characterEncoding);
+  const jsonRepresentation = JSON.parse(jsonFileContents);
+  let excludeKeys = exclude[file.basename] || {};
+  for (var jsonKey in jsonRepresentation) {
+    if (excludeKeys[jsonKey] !== true) {
+      const jsonValue = jsonRepresentation[jsonKey];
+      const processedJsonValue = process(jsonValue, encodedAesKey);
+      jsonRepresentation[jsonKey] = processedJsonValue;
+    }
+  }
+  const processedJsonString = JSON.stringify(jsonRepresentation, null, 2);
+  file.contents = new Buffer(processedJsonString);
+}
+
+exports.decrypt = function(encodedAesKey, exclude) {
   if (typeof encodedAesKey == 'undefined' || encodedAesKey == null) {
     const err = new PluginError({
       plugin: 'gulp-secure-files',
@@ -37,20 +52,12 @@ exports.decrypt = function(encodedAesKey) {
   }
   return map(function(file, cb) {
     log('Decrypting: ' + file.path);
-    const jsonFileContents = file.contents.toString(characterEncoding);
-    const jsonRepresentation = JSON.parse(jsonFileContents);
-    for (var jsonKey in jsonRepresentation) {
-      const encryptedJsonValue = jsonRepresentation[jsonKey];
-      const decryptedJsonValue = decryptData(encryptedJsonValue, encodedAesKey);
-      jsonRepresentation[jsonKey] = decryptedJsonValue;
-    }
-    const decryptedJsonString = JSON.stringify(jsonRepresentation, null, 2);
-    file.contents = new Buffer(decryptedJsonString);
+    processConfigFile(file, exclude, decryptData);
     cb(null, file);
   });
 };
 
-exports.encrypt = function(encodedAesKey) {
+exports.encrypt = function(encodedAesKey, exclude) {
   if (typeof encodedAesKey == 'undefined' || encodedAesKey == null) {
     const err = new PluginError({
       plugin: 'gulp-secure-files',
@@ -60,20 +67,7 @@ exports.encrypt = function(encodedAesKey) {
   }
   return map(function(file, cb) {
     log('Encrypting: ' + file.path);
-    const jsonFileContents = file.contents.toString(characterEncoding);
-    const jsonRepresentation = JSON.parse(jsonFileContents);
-    for (var jsonKey in jsonRepresentation) {
-      const unencryptedJsonValue = jsonRepresentation[jsonKey];
-      const encryptedJsonValue = encryptData(unencryptedJsonValue, encodedAesKey);
-      jsonRepresentation[jsonKey] = encryptedJsonValue;
-    }
-    const encryptedJsonString = JSON.stringify(jsonRepresentation, null, 2);
-    file.contents = new Buffer(encryptedJsonString);
+    processConfigFile(file, exclude, encryptData);
     cb(null, file);
   });
-}
-
-exports.generateAesKey = function() {
-  const rawKey = crypto.randomBytes(32);
-  return rawKey.toString(encodingScheme);
 }
