@@ -27,7 +27,7 @@ function decryptData(encryptedData, encodedAesKey) {
   return plainText;
 }
 
-function processConfigFile(file, exclude, process) {
+function processConfigFile(file, exclude, encodedAesKey, process) {
   const jsonFileContents = file.contents.toString(characterEncoding);
   const jsonRepresentation = JSON.parse(jsonFileContents);
   let excludeKeys = exclude[file.basename] || {};
@@ -52,7 +52,7 @@ exports.decrypt = function(encodedAesKey, exclude) {
   }
   return map(function(file, cb) {
     log('Decrypting: ' + file.path);
-    processConfigFile(file, exclude, decryptData);
+    processConfigFile(file, exclude, encodedAesKey, decryptData);
     cb(null, file);
   });
 };
@@ -67,7 +67,7 @@ exports.encrypt = function(encodedAesKey, exclude) {
   }
   return map(function(file, cb) {
     log('Encrypting: ' + file.path);
-    processConfigFile(file, exclude, encryptData);
+    processConfigFile(file, exclude, encodedAesKey, encryptData);
     cb(null, file);
   });
 }
